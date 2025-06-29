@@ -186,8 +186,10 @@ export const useKanbanConversations = (board_id: number) => {
           assignee:users(*),
           conversation_kanban!inner(
             id,
+            conversation_id,
             board_id,
             column_id,
+            account_id,
             position,
             moved_by,
             moved_at
