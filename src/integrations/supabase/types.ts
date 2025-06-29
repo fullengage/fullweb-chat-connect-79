@@ -9,13 +9,443 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      accounts: {
+        Row: {
+          city: string | null
+          cnpj: string | null
+          created_at: string
+          current_conversations: number | null
+          current_users: number | null
+          description: string | null
+          email: string
+          id: number
+          industry: string | null
+          is_active: boolean | null
+          name: string
+          phone: string | null
+          plan_id: number | null
+          state: string | null
+          subscription_expires_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          cnpj?: string | null
+          created_at?: string
+          current_conversations?: number | null
+          current_users?: number | null
+          description?: string | null
+          email: string
+          id?: number
+          industry?: string | null
+          is_active?: boolean | null
+          name: string
+          phone?: string | null
+          plan_id?: number | null
+          state?: string | null
+          subscription_expires_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          cnpj?: string | null
+          created_at?: string
+          current_conversations?: number | null
+          current_users?: number | null
+          description?: string | null
+          email?: string
+          id?: number
+          industry?: string | null
+          is_active?: boolean | null
+          name?: string
+          phone?: string | null
+          plan_id?: number | null
+          state?: string | null
+          subscription_expires_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accounts_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_stats: {
+        Row: {
+          agent_id: string
+          attendances: number | null
+          avg_response_time_seconds: number | null
+          conversations_today: number | null
+          created_at: string
+          date: string | null
+          id: string
+          rating: number | null
+          resolution_rate: number | null
+          updated_at: string
+        }
+        Insert: {
+          agent_id: string
+          attendances?: number | null
+          avg_response_time_seconds?: number | null
+          conversations_today?: number | null
+          created_at?: string
+          date?: string | null
+          id?: string
+          rating?: number | null
+          resolution_rate?: number | null
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string
+          attendances?: number | null
+          avg_response_time_seconds?: number | null
+          conversations_today?: number | null
+          created_at?: string
+          date?: string | null
+          id?: string
+          rating?: number | null
+          resolution_rate?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_stats_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agents: {
+        Row: {
+          account_id: number
+          avatar_url: string | null
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean | null
+          last_activity: string | null
+          name: string
+          phone: string | null
+          role: string
+          status: string
+          teams: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          account_id: number
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean | null
+          last_activity?: string | null
+          name: string
+          phone?: string | null
+          role: string
+          status?: string
+          teams?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          account_id?: number
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean | null
+          last_activity?: string | null
+          name?: string
+          phone?: string | null
+          role?: string
+          status?: string
+          teams?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agents_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contacts: {
+        Row: {
+          account_id: number
+          avatar_url: string | null
+          created_at: string
+          custom_fields: Json | null
+          email: string | null
+          id: number
+          last_seen: string | null
+          name: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_id: number
+          avatar_url?: string | null
+          created_at?: string
+          custom_fields?: Json | null
+          email?: string | null
+          id?: number
+          last_seen?: string | null
+          name?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_id?: number
+          avatar_url?: string | null
+          created_at?: string
+          custom_fields?: Json | null
+          email?: string | null
+          id?: number
+          last_seen?: string | null
+          name?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          account_id: number
+          additional_attributes: Json | null
+          assignee_id: string | null
+          contact_id: number
+          created_at: string
+          custom_attributes: Json | null
+          first_reply_created_at: string | null
+          id: number
+          kanban_stage: string | null
+          last_activity_at: string | null
+          priority: string | null
+          snoozed_until: string | null
+          status: string
+          unread_count: number | null
+          updated_at: string
+          waiting_since: string | null
+        }
+        Insert: {
+          account_id: number
+          additional_attributes?: Json | null
+          assignee_id?: string | null
+          contact_id: number
+          created_at?: string
+          custom_attributes?: Json | null
+          first_reply_created_at?: string | null
+          id?: number
+          kanban_stage?: string | null
+          last_activity_at?: string | null
+          priority?: string | null
+          snoozed_until?: string | null
+          status?: string
+          unread_count?: number | null
+          updated_at?: string
+          waiting_since?: string | null
+        }
+        Update: {
+          account_id?: number
+          additional_attributes?: Json | null
+          assignee_id?: string | null
+          contact_id?: number
+          created_at?: string
+          custom_attributes?: Json | null
+          first_reply_created_at?: string | null
+          id?: number
+          kanban_stage?: string | null
+          last_activity_at?: string | null
+          priority?: string | null
+          snoozed_until?: string | null
+          status?: string
+          unread_count?: number | null
+          updated_at?: string
+          waiting_since?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          attachments: Json | null
+          content: string | null
+          conversation_id: number
+          created_at: string
+          id: number
+          read_at: string | null
+          sender_id: string | null
+          sender_type: string
+        }
+        Insert: {
+          attachments?: Json | null
+          content?: string | null
+          conversation_id: number
+          created_at?: string
+          id?: number
+          read_at?: string | null
+          sender_id?: string | null
+          sender_type: string
+        }
+        Update: {
+          attachments?: Json | null
+          content?: string | null
+          conversation_id?: number
+          created_at?: string
+          id?: number
+          read_at?: string | null
+          sender_id?: string | null
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plans: {
+        Row: {
+          created_at: string
+          description: string | null
+          features: Json | null
+          id: number
+          is_active: boolean | null
+          max_conversations: number | null
+          max_users: number | null
+          name: string
+          price: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          features?: Json | null
+          id?: number
+          is_active?: boolean | null
+          max_conversations?: number | null
+          max_users?: number | null
+          name: string
+          price?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          features?: Json | null
+          id?: number
+          is_active?: boolean | null
+          max_conversations?: number | null
+          max_users?: number | null
+          name?: string
+          price?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          account_id: number
+          auth_user_id: string | null
+          avatar_url: string | null
+          confirmed: boolean | null
+          created_at: string
+          display_name: string | null
+          email: string
+          id: string
+          name: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: number
+          auth_user_id?: string | null
+          avatar_url?: string | null
+          confirmed?: boolean | null
+          created_at?: string
+          display_name?: string | null
+          email: string
+          id?: string
+          name: string
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: number
+          auth_user_id?: string | null
+          avatar_url?: string | null
+          confirmed?: boolean | null
+          created_at?: string
+          display_name?: string | null
+          email?: string
+          id?: string
+          name?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_current_user_account: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      get_current_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never
