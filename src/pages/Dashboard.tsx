@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/AppSidebar"
@@ -198,12 +197,14 @@ export default function Dashboard() {
 
                 <TabsContent value="kanban" className="space-y-6 mt-6">
                   <KanbanBoard
-                    conversations={conversationsForStats}
+                    accountId={accountIdNumber}
                     onConversationClick={(conversation) => {
                       console.log('Opening conversation:', conversation.id)
                     }}
-                    onStatusChange={handleKanbanStatusChange}
-                    isLoading={conversationsLoading}
+                    selectedBoardId={undefined}
+                    onBoardChange={(boardId) => {
+                      console.log('Board changed to:', boardId)
+                    }}
                   />
                 </TabsContent>
 

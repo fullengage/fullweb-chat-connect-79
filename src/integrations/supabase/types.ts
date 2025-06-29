@@ -224,14 +224,139 @@ export type Database = {
           },
         ]
       }
+      conversation_kanban: {
+        Row: {
+          account_id: number
+          board_id: number
+          column_id: number
+          conversation_id: number
+          id: number
+          moved_at: string | null
+          moved_by: string | null
+          position: number
+        }
+        Insert: {
+          account_id: number
+          board_id: number
+          column_id: number
+          conversation_id: number
+          id?: number
+          moved_at?: string | null
+          moved_by?: string | null
+          position: number
+        }
+        Update: {
+          account_id?: number
+          board_id?: number
+          column_id?: number
+          conversation_id?: number
+          id?: number
+          moved_at?: string | null
+          moved_by?: string | null
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_kanban_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_kanban_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "kanban_boards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_kanban_column_id_fkey"
+            columns: ["column_id"]
+            isOneToOne: false
+            referencedRelation: "kanban_columns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_kanban_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_kanban_moved_by_fkey"
+            columns: ["moved_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversation_labels: {
+        Row: {
+          account_id: number
+          added_at: string | null
+          added_by: string | null
+          conversation_id: number
+          label_id: number
+        }
+        Insert: {
+          account_id: number
+          added_at?: string | null
+          added_by?: string | null
+          conversation_id: number
+          label_id: number
+        }
+        Update: {
+          account_id?: number
+          added_at?: string | null
+          added_by?: string | null
+          conversation_id?: number
+          label_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_labels_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_labels_added_by_fkey"
+            columns: ["added_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_labels_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_labels_label_id_fkey"
+            columns: ["label_id"]
+            isOneToOne: false
+            referencedRelation: "kanban_labels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           account_id: number
           additional_attributes: Json | null
           assignee_id: string | null
+          complexity: string | null
           contact_id: number
           created_at: string
           custom_attributes: Json | null
+          due_date: string | null
+          estimated_time: number | null
           first_reply_created_at: string | null
           id: number
           kanban_stage: string | null
@@ -247,9 +372,12 @@ export type Database = {
           account_id: number
           additional_attributes?: Json | null
           assignee_id?: string | null
+          complexity?: string | null
           contact_id: number
           created_at?: string
           custom_attributes?: Json | null
+          due_date?: string | null
+          estimated_time?: number | null
           first_reply_created_at?: string | null
           id?: number
           kanban_stage?: string | null
@@ -265,9 +393,12 @@ export type Database = {
           account_id?: number
           additional_attributes?: Json | null
           assignee_id?: string | null
+          complexity?: string | null
           contact_id?: number
           created_at?: string
           custom_attributes?: Json | null
+          due_date?: string | null
+          estimated_time?: number | null
           first_reply_created_at?: string | null
           id?: number
           kanban_stage?: string | null
@@ -299,6 +430,165 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kanban_boards: {
+        Row: {
+          account_id: number
+          background_color: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: number
+          is_active: boolean | null
+          is_default: boolean | null
+          name: string
+          updated_at: string
+          visibility: string | null
+        }
+        Insert: {
+          account_id: number
+          background_color?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: number
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name: string
+          updated_at?: string
+          visibility?: string | null
+        }
+        Update: {
+          account_id?: number
+          background_color?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: number
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name?: string
+          updated_at?: string
+          visibility?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kanban_boards_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kanban_boards_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kanban_columns: {
+        Row: {
+          account_id: number
+          auto_assign_agent: boolean | null
+          board_id: number
+          color: string | null
+          created_at: string
+          description: string | null
+          id: number
+          is_final_stage: boolean | null
+          max_cards: number | null
+          name: string
+          position: number
+          updated_at: string
+        }
+        Insert: {
+          account_id: number
+          auto_assign_agent?: boolean | null
+          board_id: number
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: number
+          is_final_stage?: boolean | null
+          max_cards?: number | null
+          name: string
+          position: number
+          updated_at?: string
+        }
+        Update: {
+          account_id?: number
+          auto_assign_agent?: boolean | null
+          board_id?: number
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: number
+          is_final_stage?: boolean | null
+          max_cards?: number | null
+          name?: string
+          position?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kanban_columns_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kanban_columns_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "kanban_boards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kanban_labels: {
+        Row: {
+          account_id: number
+          board_id: number | null
+          color: string
+          created_at: string
+          id: number
+          name: string
+        }
+        Insert: {
+          account_id: number
+          board_id?: number | null
+          color: string
+          created_at?: string
+          id?: number
+          name: string
+        }
+        Update: {
+          account_id?: number
+          board_id?: number | null
+          color?: string
+          created_at?: string
+          id?: number
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kanban_labels_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kanban_labels_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "kanban_boards"
             referencedColumns: ["id"]
           },
         ]
