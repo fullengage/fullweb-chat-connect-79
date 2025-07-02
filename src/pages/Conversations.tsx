@@ -3,8 +3,9 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "@/components/AppSidebar"
 import { ConversationStats } from "@/components/ConversationStats"
 import { ConversationManagement } from "@/components/ConversationManagement"
-import { useConversations, useUsers, useInboxes } from "@/hooks/useSupabaseData"
-import { Conversation, ConversationForStats } from "@/types"
+import { useUsers, useInboxes } from "@/hooks/useSupabaseData"
+import { useChatwootConversations } from "@/hooks/useChatwootData"
+import { ConversationForStats } from "@/types"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
@@ -56,11 +57,11 @@ export default function Conversations() {
 
   const accountIdNumber = accountId ? parseInt(accountId) : 0
 
-  // Build filters object
+  // Build filters object for Chatwoot
   const filters = {
     account_id: accountIdNumber,
     ...(status !== "all" && { status }),
-    ...(assigneeId !== "all" && assigneeId !== "unassigned" && { assignee_id: assigneeId }),
+    ...(assigneeId !== "all" && assigneeId !== "unassigned" && { assignee_id: parseInt(assigneeId) }),
     ...(inboxId !== "all" && { inbox_id: parseInt(inboxId) }),
   }
 
@@ -69,7 +70,7 @@ export default function Conversations() {
     isLoading: conversationsLoading,
     error: conversationsError,
     refetch: refetchConversations
-  } = useConversations(filters)
+  } = useChatwootConversations(filters)
 
   const {
     data: agents = [],
@@ -89,7 +90,7 @@ export default function Conversations() {
     })
   }
 
-  const filteredConversations = conversations.filter((conversation: Conversation) => {
+  const filteredConversations = conversations.filter((conversation: any) => {
     if (assigneeId === "unassigned") {
       return !conversation.assignee
     }
@@ -97,7 +98,7 @@ export default function Conversations() {
   })
 
   // Convert to ConversationForStats format for the stats component
-  const conversationsForStats: ConversationForStats[] = filteredConversations.map((conv: Conversation) => ({
+  const conversationsForStats: ConversationForStats[] = filteredConversations.map((conv: any) => ({
     id: conv.id,
     status: conv.status,
     unread_count: conv.unread_count || 0,
