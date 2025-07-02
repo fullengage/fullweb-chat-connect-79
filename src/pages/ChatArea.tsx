@@ -6,15 +6,15 @@ import { ChatSidebar } from "@/components/ChatSidebar"
 import { ChatMessages } from "@/components/ChatMessages"
 import { ChatHeader } from "@/components/ChatHeader"
 import { ChatInput } from "@/components/ChatInput"
-import { useConversations, useUsers, useSendMessage } from "@/hooks/useSupabaseData"
+import { useUsers, useSendMessage } from "@/hooks/useSupabaseData"
+import { useChatwootConversations } from "@/hooks/useChatwootData"
 import { useAuth } from "@/contexts/AuthContext"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
-import { Conversation } from "@/types"
 import { MessageSquare } from "lucide-react"
 
 export default function ChatArea() {
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
+  const [selectedConversation, setSelectedConversation] = useState<any>(null)
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const { user: authUser } = useAuth()
@@ -53,7 +53,7 @@ export default function ChatArea() {
     isLoading: conversationsLoading,
     error: conversationsError,
     refetch: refetchConversations
-  } = useConversations(filters)
+  } = useChatwootConversations(filters)
 
   const {
     data: users = [],

@@ -44,6 +44,8 @@ serve(async (req) => {
     const { account_id, status, assignee_id, inbox_id } = await req.json() as ConversationFilters
 
     const chatwootToken = Deno.env.get('CHATWOOT_API_TOKEN')
+    const chatwootBaseUrl = Deno.env.get('CHATWOOT_BASE_URL') || 'https://chat.chathook.com.br'
+    
     if (!chatwootToken) {
       throw new Error('Chatwoot API token not configured')
     }
@@ -54,7 +56,7 @@ serve(async (req) => {
     if (assignee_id) params.append('assignee_id', assignee_id.toString())
     if (inbox_id) params.append('inbox_id', inbox_id.toString())
 
-    const chatwootUrl = `https://app.chatwoot.com/api/v1/accounts/${account_id}/conversations?${params.toString()}`
+    const chatwootUrl = `${chatwootBaseUrl}/api/v1/accounts/${account_id}/conversations?${params.toString()}`
     
     console.log('Fetching conversations from:', chatwootUrl)
 

@@ -1,13 +1,13 @@
 
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
-import { Conversation } from "@/types"
+// Using any type for flexibility with Chatwoot conversations
 import { ConversationCard } from "@/components/ConversationCard"
 
 interface ChatSidebarProps {
-  conversations: Conversation[]
-  selectedConversation: Conversation | null
-  onSelectConversation: (conversation: Conversation) => void
+  conversations: any[]
+  selectedConversation: any | null
+  onSelectConversation: (conversation: any) => void
   searchTerm: string
   onSearchChange: (term: string) => void
   isLoading: boolean
