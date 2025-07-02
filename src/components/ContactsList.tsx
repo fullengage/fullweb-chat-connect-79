@@ -1,6 +1,7 @@
 
 import { ContactCard } from "./ContactCard";
 import { useContacts } from "@/hooks/useSupabaseData";
+import { useChatwootContacts } from "@/hooks/useChatwootData";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,10 +63,26 @@ export const ContactsList = ({
     fetchUserAccountId();
   }, [authUser]);
   
-  const { data: fetchedContacts = [], isLoading, error } = useContacts(currentUserAccountId);
+  const { data: fetchedContacts = [], isLoading: supabaseLoading, error: supabaseError } = useContacts(currentUserAccountId);
+  const { data: chatwootContacts = [], isLoading: chatwootLoading, error: chatwootError } = useChatwootContacts(currentUserAccountId);
 
-  // Use external contacts if provided, otherwise use fetched contacts
-  const contactsToUse = externalContacts || localContacts.length > 0 ? localContacts : fetchedContacts;
+  // Combine contacts from both sources
+  const allContacts = [
+    ...fetchedContacts,
+    ...chatwootContacts.map((contact: any) => ({
+      id: contact.id,
+      name: contact.name,
+      email: contact.email,
+      phone: contact.phone_number,
+      created_at: contact.created_at
+    }))
+  ];
+
+  const isLoading = supabaseLoading || chatwootLoading;
+  const error = supabaseError || chatwootError;
+
+  // Use external contacts if provided, otherwise use combined contacts
+  const contactsToUse = externalContacts || localContacts.length > 0 ? localContacts : allContacts;
 
   // Initialize local contacts when fetched contacts change
   useEffect(() => {

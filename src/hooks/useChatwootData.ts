@@ -166,6 +166,18 @@ export const useChatwootAgents = (account_id: number) => {
   })
 }
 
+interface Contact {
+  id: number
+  name: string
+  email?: string
+  phone_number?: string
+  avatar_url?: string
+  created_at: string
+  updated_at: string
+  additional_attributes?: any
+  custom_attributes?: any
+}
+
 export const useChatwootInboxes = (account_id: number) => {
   const { toast } = useToast()
 
@@ -208,6 +220,54 @@ export const useChatwootInboxes = (account_id: number) => {
 
       console.log('Inboxes fetched successfully:', data.data.length)
       return data.data as Inbox[]
+    },
+    enabled: !!account_id,
+    staleTime: 5 * 60 * 1000, // Consider fresh for 5 minutes
+  })
+}
+
+export const useChatwootContacts = (account_id: number) => {
+  const { toast } = useToast()
+
+  return useQuery({
+    queryKey: ['chatwoot-contacts', account_id],
+    queryFn: async () => {
+      console.log('Fetching contacts for account:', account_id)
+      
+      const { data: session } = await supabase.auth.getSession()
+      if (!session.session) {
+        throw new Error('No active session')
+      }
+
+      const { data, error } = await supabase.functions.invoke('chatwoot-contacts', {
+        body: { account_id },
+        headers: {
+          Authorization: `Bearer ${session.session.access_token}`,
+        },
+      })
+
+      if (error) {
+        console.error('Supabase function error:', error)
+        toast({
+          title: "Error fetching contacts",
+          description: error.message,
+          variant: "destructive",
+        })
+        throw error
+      }
+
+      if (!data.success) {
+        console.error('Chatwoot API error:', data.error)
+        toast({
+          title: "Chatwoot API Error",
+          description: data.error,
+          variant: "destructive",
+        })
+        throw new Error(data.error)
+      }
+
+      console.log('Contacts fetched successfully:', data.data.length)
+      return data.data as Contact[]
     },
     enabled: !!account_id,
     staleTime: 5 * 60 * 1000, // Consider fresh for 5 minutes
