@@ -70,17 +70,31 @@ serve(async (req) => {
     })
 
     if (!response.ok) {
-      throw new Error(`Chatwoot API error: ${response.status} ${response.statusText}`)
+      const errorText = await response.text()
+      console.error('Proxy API error:', response.status, errorText)
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          data: [], // Return empty array on error instead of throwing
+          error: `Proxy API error: ${response.status}`,
+          details: errorText 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
     }
 
     const data = await response.json()
-    console.log('Fetched conversations:', data.data?.length || 0)
+    console.log('Fetched conversations from proxy:', data)
 
+    // Ensure data is always an array
+    const conversationsData = Array.isArray(data) ? data : (data?.data || data?.conversations || [])
+    
     return new Response(
       JSON.stringify({ 
         success: true, 
-        data: data.data || [],
-        meta: data.meta || {}
+        data: conversationsData
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
