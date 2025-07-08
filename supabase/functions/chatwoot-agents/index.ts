@@ -37,32 +37,54 @@ serve(async (req) => {
     const { account_id } = await req.json()
 
     const chatwootToken = Deno.env.get('CHATWOOT_API_TOKEN')
+    const proxyUrl = 'https://api.chathook.com.br/api/chatwoot-proxy.php'
+    
     if (!chatwootToken) {
       throw new Error('Chatwoot API token not configured')
     }
 
-    const chatwootUrl = `https://app.chatwoot.com/api/v1/accounts/${account_id}/agents`
-    
-    console.log('Fetching agents from:', chatwootUrl)
+    // Build query parameters for proxy
+    const params = new URLSearchParams()
+    params.append('account_id', account_id.toString())
+    params.append('endpoint', 'agents')
 
-    const response = await fetch(chatwootUrl, {
+    const requestUrl = `${proxyUrl}?${params.toString()}`
+    
+    console.log('Fetching agents from proxy:', requestUrl)
+
+    const response = await fetch(requestUrl, {
       headers: {
-        'api_access_token': chatwootToken,
+        'Authorization': `Bearer ${chatwootToken}`,
         'Content-Type': 'application/json',
       },
     })
 
     if (!response.ok) {
-      throw new Error(`Chatwoot API error: ${response.status} ${response.statusText}`)
+      const errorText = await response.text()
+      console.error('Proxy API error:', response.status, errorText)
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          data: [], // Return empty array on error instead of throwing
+          error: `Proxy API error: ${response.status}`,
+          details: errorText 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
     }
 
-    const agents = await response.json()
-    console.log('Fetched agents:', agents.length)
+    const data = await response.json()
+    console.log('Fetched agents from proxy:', data)
 
+    // Ensure data is always an array
+    const agentsData = Array.isArray(data) ? data : (data?.data || data?.agents || [])
+    
     return new Response(
       JSON.stringify({ 
         success: true, 
-        data: agents 
+        data: agentsData
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

@@ -37,32 +37,54 @@ serve(async (req) => {
     const { account_id } = await req.json()
 
     const chatwootToken = Deno.env.get('CHATWOOT_API_TOKEN')
+    const proxyUrl = 'https://api.chathook.com.br/api/chatwoot-proxy.php'
+    
     if (!chatwootToken) {
       throw new Error('Chatwoot API token not configured')
     }
 
-    const chatwootUrl = `https://app.chatwoot.com/api/v1/accounts/${account_id}/inboxes`
-    
-    console.log('Fetching inboxes from:', chatwootUrl)
+    // Build query parameters for proxy
+    const params = new URLSearchParams()
+    params.append('account_id', account_id.toString())
+    params.append('endpoint', 'inboxes')
 
-    const response = await fetch(chatwootUrl, {
+    const requestUrl = `${proxyUrl}?${params.toString()}`
+    
+    console.log('Fetching inboxes from proxy:', requestUrl)
+
+    const response = await fetch(requestUrl, {
       headers: {
-        'api_access_token': chatwootToken,
+        'Authorization': `Bearer ${chatwootToken}`,
         'Content-Type': 'application/json',
       },
     })
 
     if (!response.ok) {
-      throw new Error(`Chatwoot API error: ${response.status} ${response.statusText}`)
+      const errorText = await response.text()
+      console.error('Proxy API error:', response.status, errorText)
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          data: [], // Return empty array on error instead of throwing
+          error: `Proxy API error: ${response.status}`,
+          details: errorText 
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      )
     }
 
-    const inboxes = await response.json()
-    console.log('Fetched inboxes:', inboxes.length)
+    const data = await response.json()
+    console.log('Fetched inboxes from proxy:', data)
 
+    // Ensure data is always an array
+    const inboxesData = Array.isArray(data) ? data : (data?.data || data?.inboxes || [])
+    
     return new Response(
       JSON.stringify({ 
         success: true, 
-        data: inboxes 
+        data: inboxesData
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

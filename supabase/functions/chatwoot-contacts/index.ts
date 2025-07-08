@@ -24,11 +24,11 @@ serve(async (req) => {
     }
 
     const chatwootToken = Deno.env.get('CHATWOOT_API_TOKEN')
-    const chatwootBaseUrl = Deno.env.get('CHATWOOT_BASE_URL')
+    const proxyUrl = 'https://api.chathook.com.br/api/chatwoot-proxy.php'
 
-    if (!chatwootToken || !chatwootBaseUrl) {
+    if (!chatwootToken) {
       return new Response(
-        JSON.stringify({ error: 'Chatwoot credentials not configured' }),
+        JSON.stringify({ error: 'Chatwoot API token not configured' }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -36,37 +36,47 @@ serve(async (req) => {
       )
     }
 
-    const url = `${chatwootBaseUrl}/api/v1/accounts/${account_id}/contacts`
-    console.log('Fetching contacts from:', url)
+    // Build query parameters for proxy
+    const params = new URLSearchParams()
+    params.append('account_id', account_id.toString())
+    params.append('endpoint', 'contacts')
 
-    const response = await fetch(url, {
+    const requestUrl = `${proxyUrl}?${params.toString()}`
+    console.log('Fetching contacts from proxy:', requestUrl)
+
+    const response = await fetch(requestUrl, {
       headers: {
-        'api_access_token': chatwootToken,
+        'Authorization': `Bearer ${chatwootToken}`,
         'Content-Type': 'application/json',
       },
     })
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('Chatwoot API error:', response.status, errorText)
+      console.error('Proxy API error:', response.status, errorText)
       return new Response(
         JSON.stringify({ 
-          error: `Chatwoot API error: ${response.status}`,
+          success: true, 
+          data: [], // Return empty array on error instead of throwing
+          error: `Proxy API error: ${response.status}`,
           details: errorText 
         }),
         { 
-          status: response.status, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
         }
       )
     }
 
     const data = await response.json()
+    console.log('Fetched contacts from proxy:', data)
+
+    // Ensure data is always an array
+    const contactsData = Array.isArray(data) ? data : (data?.data || data?.payload || [])
     
     return new Response(
       JSON.stringify({ 
         success: true, 
-        data: data.payload || [] 
+        data: contactsData
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
