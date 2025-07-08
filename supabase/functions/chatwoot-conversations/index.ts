@@ -44,25 +44,27 @@ serve(async (req) => {
     const { account_id, status, assignee_id, inbox_id } = await req.json() as ConversationFilters
 
     const chatwootToken = Deno.env.get('CHATWOOT_API_TOKEN')
-    const chatwootBaseUrl = Deno.env.get('CHATWOOT_BASE_URL') || 'https://chat.chathook.com.br'
+    const proxyUrl = 'https://api.chathook.com.br/api/chatwoot-proxy.php'
     
     if (!chatwootToken) {
       throw new Error('Chatwoot API token not configured')
     }
 
-    // Build query parameters
+    // Build query parameters for proxy
     const params = new URLSearchParams()
+    params.append('account_id', account_id.toString())
+    params.append('endpoint', 'conversations')
     if (status) params.append('status', status)
     if (assignee_id) params.append('assignee_id', assignee_id.toString())
     if (inbox_id) params.append('inbox_id', inbox_id.toString())
 
-    const chatwootUrl = `${chatwootBaseUrl}/api/v1/accounts/${account_id}/conversations?${params.toString()}`
+    const requestUrl = `${proxyUrl}?${params.toString()}`
     
-    console.log('Fetching conversations from:', chatwootUrl)
+    console.log('Fetching conversations from proxy:', requestUrl)
 
-    const response = await fetch(chatwootUrl, {
+    const response = await fetch(requestUrl, {
       headers: {
-        'api_access_token': chatwootToken,
+        'Authorization': `Bearer ${chatwootToken}`,
         'Content-Type': 'application/json',
       },
     })
