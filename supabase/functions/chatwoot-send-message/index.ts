@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -7,10 +6,10 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-interface ConversationFilters {
-  status?: string
-  assignee_id?: number
-  inbox_id?: number
+interface SendMessageRequest {
+  conversation_id: number
+  content: string
+  message_type?: string
   account_id: number
 }
 
@@ -41,7 +40,7 @@ serve(async (req) => {
       throw new Error('Invalid authorization')
     }
 
-    const { account_id, status, assignee_id, inbox_id } = await req.json() as ConversationFilters
+    const { conversation_id, content, message_type = 'outgoing', account_id } = await req.json() as SendMessageRequest
 
     const chatwootToken = Deno.env.get('CHATWOOT_API_TOKEN')
     const proxyUrl = 'https://api.chathook.com.br/api/chatwoot-proxy.php'
@@ -50,16 +49,21 @@ serve(async (req) => {
       throw new Error('Chatwoot API token not configured')
     }
 
-    // Build the correct proxy URL
-    const requestUrl = `${proxyUrl}?endpoint=conversations&account_id=${account_id}`
+    // Build the correct proxy URL for sending messages
+    const requestUrl = `${proxyUrl}?endpoint=conversations/${conversation_id}/messages&account_id=${account_id}`
     
-    console.log('Fetching conversations from proxy:', requestUrl)
+    console.log('Sending message via proxy:', requestUrl)
 
     const response = await fetch(requestUrl, {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${chatwootToken}`,
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        content,
+        message_type
+      })
     })
 
     if (!response.ok) {
@@ -67,27 +71,24 @@ serve(async (req) => {
       console.error('Proxy API error:', response.status, errorText)
       return new Response(
         JSON.stringify({ 
-          success: true, 
-          data: [], // Return empty array on error instead of throwing
+          success: false, 
           error: `Proxy API error: ${response.status}`,
           details: errorText 
         }),
         { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: response.status
         }
       )
     }
 
     const data = await response.json()
-    console.log('Fetched conversations from proxy:', data)
-
-    // Ensure data is always an array
-    const conversationsData = Array.isArray(data) ? data : (data?.data || data?.conversations || [])
+    console.log('Message sent via proxy:', data)
     
     return new Response(
       JSON.stringify({ 
         success: true, 
-        data: conversationsData
+        data: data
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -95,7 +96,7 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Error fetching conversations:', error)
+    console.error('Error sending message:', error)
     return new Response(
       JSON.stringify({ 
         success: false, 

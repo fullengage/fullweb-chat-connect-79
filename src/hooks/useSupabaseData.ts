@@ -530,7 +530,7 @@ export const useCreateConversation = () => {
   })
 }
 
-// Hook para enviar mensagem
+// Hook para enviar mensagem via proxy do Chatwoot
 export const useSendMessage = () => {
   const queryClient = useQueryClient()
   const { toast } = useToast()
@@ -538,22 +538,42 @@ export const useSendMessage = () => {
   return useMutation({
     mutationFn: async (messageData: {
       conversation_id: number
-      sender_type: 'contact' | 'agent' | 'system'
+      sender_type?: 'contact' | 'agent' | 'system'
       sender_id?: string
       content: string
-      attachments?: any
+      account_id: number
     }) => {
-      const { data, error } = await supabase
-        .from('messages')
-        .insert(messageData)
-        .select()
-        .single()
+      const { data: session } = await supabase.auth.getSession()
+      if (!session.session) {
+        throw new Error('No active session')
+      }
 
-      if (error) throw error
-      return data
+      const { data, error } = await supabase.functions.invoke('chatwoot-send-message', {
+        body: {
+          conversation_id: messageData.conversation_id,
+          content: messageData.content,
+          message_type: 'outgoing',
+          account_id: messageData.account_id
+        },
+        headers: {
+          Authorization: `Bearer ${session.session.access_token}`,
+        },
+      })
+
+      if (error) {
+        console.error('Supabase function error:', error)
+        throw error
+      }
+
+      if (!data.success) {
+        console.error('Chatwoot API error:', data.error)
+        throw new Error(data.error)
+      }
+
+      return data.data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['conversations'] })
+      queryClient.invalidateQueries({ queryKey: ['chatwoot-conversations'] })
       toast({
         title: "Mensagem enviada",
         description: "Mensagem enviada com sucesso",

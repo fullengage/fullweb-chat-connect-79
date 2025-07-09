@@ -1,1 +1,16 @@
 project_id = "fjihzmwtdqnigkqbugrh"
+
+[functions.chatwoot-conversations]
+verify_jwt = true
+
+[functions.chatwoot-agents]
+verify_jwt = true
+
+[functions.chatwoot-contacts]
+verify_jwt = true
+
+[functions.chatwoot-inboxes]
+verify_jwt = true
+
+[functions.chatwoot-send-message]
+verify_jwt = true

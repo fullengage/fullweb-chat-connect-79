@@ -110,8 +110,35 @@ export const useChatwootConversations = (filters: ConversationFilters) => {
         throw new Error(data.error)
       }
 
-      console.log('Conversations fetched successfully:', data.data.length)
-      return data.data as Conversation[]
+      // Extract conversations from the proxy response structure
+      const conversationsData = data.data?.payload || data.data?.data || data.data || []
+      console.log('Conversations fetched successfully:', conversationsData.length)
+      
+      // Transform the data to match our interface
+      const transformedConversations = conversationsData.map((conv: any) => ({
+        id: conv.id,
+        account_id: conv.account_id,
+        status: conv.status,
+        messages: conv.messages || [],
+        unread_count: conv.unread_count || 0,
+        contact: {
+          id: conv.meta?.sender?.id,
+          name: conv.meta?.sender?.name,
+          email: conv.meta?.sender?.email,
+          phone_number: conv.meta?.sender?.phone_number,
+          avatar_url: conv.meta?.sender?.thumbnail
+        },
+        inbox: {
+          id: conv.inbox_id || 1,
+          name: 'Chat',
+          channel_type: conv.meta?.channel || 'webchat'
+        },
+        assignee: conv.assignee,
+        created_at: conv.created_at,
+        updated_at: conv.updated_at
+      }))
+      
+      return transformedConversations as Conversation[]
     },
     enabled: !!filters.account_id,
     refetchInterval: 30000, // Refetch every 30 seconds for real-time updates

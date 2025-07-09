@@ -6,7 +6,7 @@ import { Conversation } from "@/types"
 import { User } from "@/hooks/useSupabaseData"
 
 interface ChatMessagesProps {
-  conversation: Conversation
+  conversation: any // Using any to handle Chatwoot conversation structure
   currentUser: any
   users: User[]
 }
@@ -48,16 +48,17 @@ export const ChatMessages = ({ conversation, currentUser, users }: ChatMessagesP
   }
 
   const getSenderInfo = (message: any) => {
-    if (message.sender_type === 'contact') {
+    // Handle Chatwoot message types
+    if (message.sender_type === 'User' || message.sender_type === 'contact') {
       return {
-        name: conversation.contact?.name || 'Contato',
-        avatar: conversation.contact?.avatar_url,
+        name: conversation.contact?.name || conversation.meta?.sender?.name || 'Contato',
+        avatar: conversation.contact?.avatar_url || conversation.meta?.sender?.thumbnail,
         isCurrentUser: false
       }
-    } else if (message.sender_type === 'agent') {
-      const sender = users.find(user => user.id === message.sender_id)
+    } else if (message.sender_type === 'Agent' || message.sender_type === 'agent') {
+      const sender = users.find(user => user.id === message.sender_id) || message.sender
       return {
-        name: sender?.name || 'Agente',
+        name: sender?.name || sender?.available_name || 'Agente',
         avatar: sender?.avatar_url,
         isCurrentUser: message.sender_id === currentUser.id
       }

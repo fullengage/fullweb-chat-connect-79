@@ -85,7 +85,8 @@ export default function ChatArea() {
         conversation_id: selectedConversation.id,
         sender_type: 'agent',
         sender_id: currentUser.id,
-        content
+        content,
+        account_id: currentUser.account_id
       })
 
       // Refresh conversations to get updated messages
