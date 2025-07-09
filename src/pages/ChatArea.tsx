@@ -71,8 +71,8 @@ export default function ChatArea() {
     scrollToBottom()
   }, [selectedConversation?.messages])
 
-  // Filter conversations based on search - ensure conversations is always an array
-  const filteredConversations = (Array.isArray(conversations) ? conversations : []).filter(conversation =>
+  // Filter conversations based on search
+  const filteredConversations = conversations.filter(conversation =>
     conversation.contact?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     conversation.contact?.email?.toLowerCase().includes(searchTerm.toLowerCase())
   )
