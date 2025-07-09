@@ -39,29 +39,33 @@ export const ConversationStats = ({ conversations, isLoading }: ConversationStat
       title: "Total de Conversas",
       value: totalConversations,
       icon: MessageCircle,
-      color: "text-blue-600",
-      bgColor: "bg-blue-100"
+      color: "text-blue-400",
+      bgColor: "bg-blue-500/20",
+      borderColor: "border-blue-500/30"
     },
     {
       title: "Abertas",
       value: openConversations,
       icon: Clock,
-      color: "text-green-600",
-      bgColor: "bg-green-100"
+      color: "text-green-400",
+      bgColor: "bg-green-500/20",
+      borderColor: "border-green-500/30"
     },
     {
       title: "Pendentes",
       value: pendingConversations,
       icon: Users,
-      color: "text-yellow-600",
-      bgColor: "bg-yellow-100"
+      color: "text-yellow-400",
+      bgColor: "bg-yellow-500/20",
+      borderColor: "border-yellow-500/30"
     },
     {
       title: "Resolvidas",
       value: resolvedConversations,
       icon: CheckCircle,
-      color: "text-gray-600",
-      bgColor: "bg-gray-100"
+      color: "text-purple-400",
+      bgColor: "bg-purple-500/20",
+      borderColor: "border-purple-500/30"
     }
   ]
 
@@ -71,17 +75,21 @@ export const ConversationStats = ({ conversations, isLoading }: ConversationStat
         {stats.map((stat) => {
           const Icon = stat.icon
           return (
-            <Card key={stat.title}>
+            <Card key={stat.title} className={`card-hover-effect border ${stat.borderColor} bg-card/50 backdrop-blur-sm`}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+                <CardTitle className="text-sm font-medium text-foreground">
                   {stat.title}
                 </CardTitle>
-                <div className={`p-2 rounded-full ${stat.bgColor}`}>
-                  <Icon className={`h-4 w-4 ${stat.color}`} />
+                <div className={`p-3 rounded-xl ${stat.bgColor} ${stat.borderColor} border`}>
+                  <Icon className={`h-5 w-5 ${stat.color}`} />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
+                <div className="text-3xl font-bold text-foreground">{stat.value}</div>
+                <div className="flex items-center text-xs text-muted-foreground mt-1">
+                  <span className={`w-2 h-2 rounded-full ${stat.bgColor} mr-2`}></span>
+                  {stat.title.toLowerCase()}
+                </div>
               </CardContent>
             </Card>
           )
