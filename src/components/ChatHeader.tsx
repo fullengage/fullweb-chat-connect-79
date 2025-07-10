@@ -2,15 +2,37 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { CheckCircle, MoreVertical } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { 
+  CheckCircle, 
+  MoreVertical,
+  UserPlus,
+  Tag,
+  Eye
+} from "lucide-react"
 import { Conversation } from "@/types"
+import { useState } from "react"
 
 interface ChatHeaderProps {
   conversation: Conversation
   onResolve: () => void
+  onAssignAgent: (conversationId: number, agentId: string) => void
+  onMarkAsRead: (conversationId: number) => void
+  onAddLabel: (conversationId: number, label: string) => void
+  users: any[]
 }
 
-export const ChatHeader = ({ conversation, onResolve }: ChatHeaderProps) => {
+export const ChatHeader = ({ 
+  conversation, 
+  onResolve, 
+  onAssignAgent, 
+  onMarkAsRead, 
+  onAddLabel, 
+  users 
+}: ChatHeaderProps) => {
+  const [newLabel, setNewLabel] = useState("")
+  const [showLabelInput, setShowLabelInput] = useState(false)
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'open':
@@ -70,6 +92,70 @@ export const ChatHeader = ({ conversation, onResolve }: ChatHeaderProps) => {
         </div>
 
         <div className="flex items-center space-x-2">
+          {/* Assign Agent */}
+          <Select onValueChange={(agentId) => onAssignAgent(conversation.id, agentId)}>
+            <SelectTrigger className="w-40 h-8">
+              <UserPlus className="h-4 w-4 mr-2" />
+              <SelectValue placeholder="Atribuir" />
+            </SelectTrigger>
+            <SelectContent>
+              {users.map((user) => (
+                <SelectItem key={user.id} value={user.id}>
+                  {user.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Mark as Read */}
+          <Button
+            onClick={() => onMarkAsRead(conversation.id)}
+            variant="outline"
+            size="sm"
+            disabled={!conversation.unread_count}
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            Marcar lida
+          </Button>
+
+          {/* Add Label */}
+          <div className="flex items-center gap-2">
+            {showLabelInput ? (
+              <div className="flex gap-1">
+                <Input
+                  placeholder="Nova etiqueta"
+                  value={newLabel}
+                  onChange={(e) => setNewLabel(e.target.value)}
+                  className="w-32 h-8"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && newLabel.trim()) {
+                      onAddLabel(conversation.id, newLabel.trim())
+                      setNewLabel("")
+                      setShowLabelInput(false)
+                    }
+                  }}
+                />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowLabelInput(false)}
+                >
+                  ✕
+                </Button>
+              </div>
+            ) : (
+              <Button
+                onClick={() => setShowLabelInput(true)}
+                variant="outline"
+                size="sm"
+              >
+                <Tag className="h-4 w-4 mr-2" />
+                Etiqueta
+              </Button>
+            )}
+          </div>
+
+          {/* Resolve */}
           {conversation.status !== 'resolved' && (
             <Button onClick={onResolve} variant="outline" size="sm">
               <CheckCircle className="h-4 w-4 mr-2" />
