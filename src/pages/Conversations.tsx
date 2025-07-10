@@ -254,8 +254,12 @@ export default function Conversations() {
             {accountIdNumber > 0 ? (
               <div className="space-y-6">
                 <ConversationStats
-                  conversations={conversationsForStats}
-                  isLoading={conversationsLoading}
+                  stats={{
+                    total: conversationsForStats.length,
+                    unread: conversationsForStats.filter(c => c.unread_count > 0).length,
+                    assigned: conversationsForStats.filter(c => c.status === 'open').length,
+                    unassigned: conversationsForStats.filter(c => c.status === 'resolved').length
+                  }}
                 />
                 
                 <ConversationManagement
