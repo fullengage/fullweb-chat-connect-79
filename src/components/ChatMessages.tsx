@@ -51,22 +51,25 @@ export const ChatMessages = ({ conversation, currentUser, users }: ChatMessagesP
     // Handle Chatwoot message types
     if (message.sender_type === 'User' || message.sender_type === 'contact') {
       return {
-        name: conversation.contact?.name || conversation.meta?.sender?.name || 'Contato',
+        name: conversation.contact?.name || conversation.meta?.sender?.name || 'Cliente',
         avatar: conversation.contact?.avatar_url || conversation.meta?.sender?.thumbnail,
-        isCurrentUser: false
+        isCurrentUser: false,
+        isCustomer: true
       }
     } else if (message.sender_type === 'Agent' || message.sender_type === 'agent') {
       const sender = users.find(user => user.id === message.sender_id) || message.sender
       return {
         name: sender?.name || sender?.available_name || 'Agente',
         avatar: sender?.avatar_url,
-        isCurrentUser: message.sender_id === currentUser.id
+        isCurrentUser: message.sender_id === currentUser?.id,
+        isCustomer: false
       }
     } else {
       return {
         name: 'Sistema',
         avatar: undefined,
-        isCurrentUser: false
+        isCurrentUser: false,
+        isCustomer: false
       }
     }
   }
@@ -105,32 +108,53 @@ export const ChatMessages = ({ conversation, currentUser, users }: ChatMessagesP
                 </span>
               </div>
             ) : (
-              <div className={`flex ${senderInfo.isCurrentUser ? 'justify-end' : 'justify-start'}`}>
-                <div className={`flex max-w-xs lg:max-w-md ${senderInfo.isCurrentUser ? 'flex-row-reverse' : 'flex-row'}`}>
-                  <Avatar className="h-8 w-8 flex-shrink-0">
-                    <AvatarImage src={senderInfo.avatar} />
-                    <AvatarFallback className="text-xs">
-                      {senderInfo.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+              <div className={`flex mb-4 ${senderInfo.isCustomer ? 'justify-start' : 'justify-end'}`}>
+                <div className={`flex max-w-[70%] ${senderInfo.isCustomer ? 'flex-row' : 'flex-row-reverse'}`}>
+                  {/* Avatar só para mensagens do cliente */}
+                  {senderInfo.isCustomer && (
+                    <Avatar className="h-8 w-8 flex-shrink-0 mr-2">
+                      <AvatarImage src={senderInfo.avatar} />
+                      <AvatarFallback className="text-xs bg-gray-300 text-gray-700">
+                        {senderInfo.name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
                   
-                  <div className={`mx-2 ${senderInfo.isCurrentUser ? 'text-right' : 'text-left'}`}>
-                    <div
-                      className={`px-4 py-2 rounded-lg ${
-                        senderInfo.isCurrentUser
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-200 text-gray-900'
-                      }`}
-                    >
-                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  <div className={`${senderInfo.isCustomer ? 'text-left' : 'text-right'}`}>
+                    {/* Nome do remetente acima da mensagem */}
+                    <div className={`text-xs text-gray-500 mb-1 ${senderInfo.isCustomer ? 'text-left' : 'text-right'}`}>
+                      <span className="font-medium">{senderInfo.name}</span>
                     </div>
                     
-                    <div className={`mt-1 text-xs text-gray-500 ${senderInfo.isCurrentUser ? 'text-right' : 'text-left'}`}>
-                      <span>{senderInfo.name}</span>
-                      <span className="mx-1">•</span>
+                    {/* Balão da mensagem */}
+                    <div
+                      className={`px-4 py-2 rounded-2xl shadow-sm ${
+                        senderInfo.isCustomer
+                          ? 'bg-white border border-gray-200 text-gray-900'
+                          : 'bg-green-500 text-white'
+                      }`}
+                    >
+                      <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                    </div>
+                    
+                    {/* Horário da mensagem */}
+                    <div className={`mt-1 text-xs text-gray-400 ${senderInfo.isCustomer ? 'text-left' : 'text-right'}`}>
                       <span>{formatMessageDate(message.created_at)}</span>
+                      {!senderInfo.isCustomer && (
+                        <span className="ml-1">✓✓</span>
+                      )}
                     </div>
                   </div>
+                  
+                  {/* Avatar para agentes (lado direito) */}
+                  {!senderInfo.isCustomer && (
+                    <Avatar className="h-8 w-8 flex-shrink-0 ml-2">
+                      <AvatarImage src={senderInfo.avatar} />
+                      <AvatarFallback className="text-xs bg-green-600 text-white">
+                        {senderInfo.name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
                 </div>
               </div>
             )}
