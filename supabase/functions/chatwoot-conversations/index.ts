@@ -84,10 +84,50 @@ serve(async (req) => {
     // Ensure data is always an array
     const conversationsData = Array.isArray(data) ? data : (data?.data || data?.conversations || [])
     
+    // For each conversation, fetch its messages
+    const conversationsWithMessages = await Promise.all(
+      conversationsData.map(async (conversation: any) => {
+        try {
+          const messagesUrl = `${proxyUrl}?endpoint=conversations/${conversation.id}/messages&account_id=${account_id}`
+          console.log('Fetching messages for conversation:', conversation.id)
+          
+          const messagesResponse = await fetch(messagesUrl, {
+            headers: {
+              'Authorization': `Bearer ${chatwootToken}`,
+              'Content-Type': 'application/json',
+            },
+          })
+
+          if (messagesResponse.ok) {
+            const messagesData = await messagesResponse.json()
+            const messages = Array.isArray(messagesData) ? messagesData : (messagesData?.data || messagesData?.payload || [])
+            console.log(`Fetched ${messages.length} messages for conversation ${conversation.id}`)
+            
+            return {
+              ...conversation,
+              messages: messages
+            }
+          } else {
+            console.warn(`Failed to fetch messages for conversation ${conversation.id}`)
+            return {
+              ...conversation,
+              messages: []
+            }
+          }
+        } catch (error) {
+          console.error(`Error fetching messages for conversation ${conversation.id}:`, error)
+          return {
+            ...conversation,
+            messages: []
+          }
+        }
+      })
+    )
+    
     return new Response(
       JSON.stringify({ 
         success: true, 
-        data: conversationsData
+        data: conversationsWithMessages
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
