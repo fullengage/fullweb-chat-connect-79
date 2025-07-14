@@ -81,13 +81,14 @@ serve(async (req) => {
     const data = await response.json()
     console.log('Fetched conversations from proxy:', data)
 
-    // Ensure data is always an array - fix the data extraction based on API response structure
-    const conversationsData = data?.payload || data?.data || []
-    console.log('Extracted conversations data:', Array.isArray(conversationsData), conversationsData?.length || 0)
+    // CORREÇÃO: Acessar conversas seguindo o padrão especificado: data.data.payload
+    const conversations = data?.data?.payload || []
+    console.log('Extracted conversations data:', Array.isArray(conversations), conversations?.length || 0)
     
-    // Validate that we have an array to work with
-    if (!Array.isArray(conversationsData)) {
-      console.warn('conversationsData is not an array:', conversationsData)
+    // Garantir que é um array antes de mapear
+    if (!Array.isArray(conversations)) {
+      console.warn('O retorno do proxy não é um array de conversas!', conversations)
+      console.log('Full data structure received:', JSON.stringify(data, null, 2))
       return new Response(
         JSON.stringify({ 
           success: true, 
@@ -99,9 +100,9 @@ serve(async (req) => {
       )
     }
 
-    // For each conversation, fetch its messages
+    // Para cada conversa, buscar suas mensagens
     const conversationsWithMessages = await Promise.all(
-      conversationsData.map(async (conversation: any) => {
+      conversations.map(async (conversation: any) => {
         try {
           const messagesUrl = `${proxyUrl}?endpoint=conversations/${conversation.id}/messages&account_id=${account_id}`
           console.log('Fetching messages for conversation:', conversation.id)
@@ -115,12 +116,13 @@ serve(async (req) => {
 
           if (messagesResponse.ok) {
             const messagesData = await messagesResponse.json()
-            const messages = Array.isArray(messagesData) ? messagesData : (messagesData?.data || messagesData?.payload || [])
-            console.log(`Fetched ${messages.length} messages for conversation ${conversation.id}`)
+            // Acessar mensagens seguindo o mesmo padrão: data.data.payload
+            const messages = messagesData?.data?.payload || messagesData?.data || []
+            console.log(`Fetched ${Array.isArray(messages) ? messages.length : 0} messages for conversation ${conversation.id}`)
             
             return {
               ...conversation,
-              messages: messages
+              messages: Array.isArray(messages) ? messages : []
             }
           } else {
             console.warn(`Failed to fetch messages for conversation ${conversation.id}`)
