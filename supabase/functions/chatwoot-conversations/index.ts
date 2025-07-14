@@ -81,9 +81,24 @@ serve(async (req) => {
     const data = await response.json()
     console.log('Fetched conversations from proxy:', data)
 
-    // Ensure data is always an array
-    const conversationsData = Array.isArray(data) ? data : (data?.data || data?.conversations || [])
+    // Ensure data is always an array - fix the data extraction based on API response structure
+    const conversationsData = data?.payload || data?.data || []
+    console.log('Extracted conversations data:', Array.isArray(conversationsData), conversationsData?.length || 0)
     
+    // Validate that we have an array to work with
+    if (!Array.isArray(conversationsData)) {
+      console.warn('conversationsData is not an array:', conversationsData)
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          data: []
+        }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        },
+      )
+    }
+
     // For each conversation, fetch its messages
     const conversationsWithMessages = await Promise.all(
       conversationsData.map(async (conversation: any) => {
