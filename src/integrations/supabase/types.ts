@@ -238,6 +238,7 @@ export type Database = {
           id: number
           moved_at: string | null
           moved_by: string | null
+          phone: string | null
           position: number
         }
         Insert: {
@@ -248,6 +249,7 @@ export type Database = {
           id?: number
           moved_at?: string | null
           moved_by?: string | null
+          phone?: string | null
           position: number
         }
         Update: {
@@ -258,6 +260,7 @@ export type Database = {
           id?: number
           moved_at?: string | null
           moved_by?: string | null
+          phone?: string | null
           position?: number
         }
         Relationships: [
@@ -357,7 +360,7 @@ export type Database = {
           additional_attributes: Json | null
           assignee_id: string | null
           complexity: string | null
-          contact_id: number
+          contact_phone: string | null
           created_at: string
           custom_attributes: Json | null
           due_date: string | null
@@ -378,7 +381,7 @@ export type Database = {
           additional_attributes?: Json | null
           assignee_id?: string | null
           complexity?: string | null
-          contact_id: number
+          contact_phone?: string | null
           created_at?: string
           custom_attributes?: Json | null
           due_date?: string | null
@@ -399,7 +402,7 @@ export type Database = {
           additional_attributes?: Json | null
           assignee_id?: string | null
           complexity?: string | null
-          contact_id?: number
+          contact_phone?: string | null
           created_at?: string
           custom_attributes?: Json | null
           due_date?: string | null
@@ -431,11 +434,11 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "conversations_contact_id_fkey"
-            columns: ["contact_id"]
+            foreignKeyName: "conversations_contact_phone_fkey"
+            columns: ["contact_phone"]
             isOneToOne: false
             referencedRelation: "contacts"
-            referencedColumns: ["id"]
+            referencedColumns: ["phone"]
           },
         ]
       }
@@ -601,6 +604,7 @@ export type Database = {
       messages: {
         Row: {
           attachments: Json | null
+          contact_phone: string | null
           content: string | null
           conversation_id: number
           created_at: string
@@ -611,6 +615,7 @@ export type Database = {
         }
         Insert: {
           attachments?: Json | null
+          contact_phone?: string | null
           content?: string | null
           conversation_id: number
           created_at?: string
@@ -621,6 +626,7 @@ export type Database = {
         }
         Update: {
           attachments?: Json | null
+          contact_phone?: string | null
           content?: string | null
           conversation_id?: number
           created_at?: string
@@ -630,6 +636,13 @@ export type Database = {
           sender_type?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "messages_contact_phone_fkey"
+            columns: ["contact_phone"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["phone"]
+          },
           {
             foreignKeyName: "messages_conversation_id_fkey"
             columns: ["conversation_id"]
@@ -675,6 +688,123 @@ export type Database = {
           name?: string
           price?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      processed_messages: {
+        Row: {
+          account_id: number
+          ai_analysis: Json | null
+          content: string | null
+          conversation_id: number
+          enriched_data: Json | null
+          id: number
+          message_id: number
+          phone: string | null
+          processed_at: string | null
+          sender_type: string | null
+        }
+        Insert: {
+          account_id: number
+          ai_analysis?: Json | null
+          content?: string | null
+          conversation_id: number
+          enriched_data?: Json | null
+          id?: number
+          message_id: number
+          phone?: string | null
+          processed_at?: string | null
+          sender_type?: string | null
+        }
+        Update: {
+          account_id?: number
+          ai_analysis?: Json | null
+          content?: string | null
+          conversation_id?: number
+          enriched_data?: Json | null
+          id?: number
+          message_id?: number
+          phone?: string | null
+          processed_at?: string | null
+          sender_type?: string | null
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          account_id: number
+          auto_reply_enabled: boolean | null
+          chatwoot_token: string
+          created_at: string | null
+          id: number
+          slack_notifications: boolean | null
+          webhook_secret: string | null
+        }
+        Insert: {
+          account_id: number
+          auto_reply_enabled?: boolean | null
+          chatwoot_token: string
+          created_at?: string | null
+          id?: number
+          slack_notifications?: boolean | null
+          webhook_secret?: string | null
+        }
+        Update: {
+          account_id?: number
+          auto_reply_enabled?: boolean | null
+          chatwoot_token?: string
+          created_at?: string | null
+          id?: number
+          slack_notifications?: boolean | null
+          webhook_secret?: string | null
+        }
+        Relationships: []
+      }
+      sync_accounts: {
+        Row: {
+          account_id: number
+          active: boolean | null
+          agents_synced: number | null
+          chatwoot_token: string
+          contacts_synced: number | null
+          conversations_synced: number | null
+          created_at: string | null
+          id: number
+          last_sync: string | null
+          last_sync_status: string | null
+          messages_synced: number | null
+          sync_interval_minutes: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          account_id: number
+          active?: boolean | null
+          agents_synced?: number | null
+          chatwoot_token: string
+          contacts_synced?: number | null
+          conversations_synced?: number | null
+          created_at?: string | null
+          id?: number
+          last_sync?: string | null
+          last_sync_status?: string | null
+          messages_synced?: number | null
+          sync_interval_minutes?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: number
+          active?: boolean | null
+          agents_synced?: number | null
+          chatwoot_token?: string
+          contacts_synced?: number | null
+          conversations_synced?: number | null
+          created_at?: string | null
+          id?: number
+          last_sync?: string | null
+          last_sync_status?: string | null
+          messages_synced?: number | null
+          sync_interval_minutes?: number | null
+          updated_at?: string | null
         }
         Relationships: []
       }

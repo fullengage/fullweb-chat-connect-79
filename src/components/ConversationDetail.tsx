@@ -184,12 +184,12 @@ export const ConversationDetail = ({
 
               <div>
                 <label className="text-sm font-medium">Responsável</label>
-                <Select value={selectedAssignee || conversation.assignee?.id || ""} onValueChange={handleAssigneeChange}>
+                <Select value={selectedAssignee || conversation.assignee?.id || "unassigned"} onValueChange={handleAssigneeChange}>
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Selecionar responsável" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Não atribuído</SelectItem>
+                    <SelectItem value="unassigned">Não atribuído</SelectItem>
                     {agents.map((agent) => (
                       <SelectItem key={agent.id} value={agent.id.toString()}>
                         {agent.name}
