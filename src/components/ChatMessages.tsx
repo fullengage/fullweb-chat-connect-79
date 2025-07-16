@@ -2,6 +2,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { formatDistanceToNow, isToday, isYesterday, format } from "date-fns"
 import { ptBR } from "date-fns/locale/pt-BR"
+import { MessageSquare } from "lucide-react"
 import { Conversation } from "@/types"
 import { User } from "@/hooks/useSupabaseData"
 
@@ -77,44 +78,47 @@ export const ChatMessages = ({ conversation, currentUser, users }: ChatMessagesP
   if (messages.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center p-8">
-        <div className="text-center text-gray-500">
-          <p>Nenhuma mensagem ainda</p>
-          <p className="text-sm mt-1">Seja o primeiro a enviar uma mensagem!</p>
+        <div className="text-center animate-fade-in">
+          <div className="bg-primary/10 rounded-full p-6 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+            <MessageSquare className="h-10 w-10 text-primary" />
+          </div>
+          <p className="text-foreground font-medium">Nenhuma mensagem ainda</p>
+          <p className="text-sm mt-2 text-muted-foreground">Seja o primeiro a enviar uma mensagem para este cliente!</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-muted/5 to-background">
       {messages.map((message, index) => {
         const senderInfo = getSenderInfo(message)
         const showDateSeparator = shouldShowDateSeparator(index, messages)
         
         return (
-          <div key={message.id || index}>
+          <div key={message.id || index} className="animate-fade-in">
             {showDateSeparator && (
-              <div className="flex justify-center my-4">
-                <span className="bg-gray-100 text-gray-600 text-xs px-3 py-1 rounded-full">
+              <div className="flex justify-center my-6">
+                <span className="bg-muted text-muted-foreground text-xs px-4 py-2 rounded-full shadow-sm">
                   {getDateSeparator(message.created_at)}
                 </span>
               </div>
             )}
 
             {message.sender_type === 'system' ? (
-              <div className="flex justify-center my-2">
-                <span className="text-gray-500 text-sm italic">
+              <div className="flex justify-center my-4">
+                <span className="text-muted-foreground text-sm italic bg-muted/50 px-3 py-2 rounded-lg">
                   {message.content}
                 </span>
               </div>
             ) : (
-              <div className={`flex mb-4 ${senderInfo.isCustomer ? 'justify-start' : 'justify-end'}`}>
-                <div className={`flex max-w-[70%] ${senderInfo.isCustomer ? 'flex-row' : 'flex-row-reverse'}`}>
+              <div className={`flex mb-6 ${senderInfo.isCustomer ? 'justify-start' : 'justify-end'}`}>
+                <div className={`flex max-w-[75%] ${senderInfo.isCustomer ? 'flex-row' : 'flex-row-reverse'}`}>
                   {/* Avatar só para mensagens do cliente */}
                   {senderInfo.isCustomer && (
-                    <Avatar className="h-8 w-8 flex-shrink-0 mr-2">
+                    <Avatar className="h-10 w-10 flex-shrink-0 mr-3 hover-scale">
                       <AvatarImage src={senderInfo.avatar} />
-                      <AvatarFallback className="text-xs bg-gray-300 text-gray-700">
+                      <AvatarFallback className="text-sm bg-gradient-to-br from-muted to-muted/80 text-foreground">
                         {senderInfo.name.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
@@ -122,35 +126,35 @@ export const ChatMessages = ({ conversation, currentUser, users }: ChatMessagesP
                   
                   <div className={`${senderInfo.isCustomer ? 'text-left' : 'text-right'}`}>
                     {/* Nome do remetente acima da mensagem */}
-                    <div className={`text-xs text-gray-500 mb-1 ${senderInfo.isCustomer ? 'text-left' : 'text-right'}`}>
+                    <div className={`text-xs text-muted-foreground mb-2 ${senderInfo.isCustomer ? 'text-left' : 'text-right'}`}>
                       <span className="font-medium">{senderInfo.name}</span>
                     </div>
                     
                     {/* Balão da mensagem */}
                     <div
-                      className={`px-4 py-2 rounded-2xl shadow-sm ${
+                      className={`px-4 py-3 rounded-2xl shadow-sm transition-all duration-200 hover:shadow-md ${
                         senderInfo.isCustomer
-                          ? 'bg-white border border-gray-200 text-gray-900'
-                          : 'bg-green-500 text-white'
+                          ? 'bg-card border border-border text-foreground'
+                          : 'bg-primary text-primary-foreground'
                       }`}
                     >
-                      <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+                      <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
                     </div>
                     
                     {/* Horário da mensagem */}
-                    <div className={`mt-1 text-xs text-gray-400 ${senderInfo.isCustomer ? 'text-left' : 'text-right'}`}>
+                    <div className={`mt-2 text-xs text-muted-foreground/70 ${senderInfo.isCustomer ? 'text-left' : 'text-right'}`}>
                       <span>{formatMessageDate(message.created_at)}</span>
                       {!senderInfo.isCustomer && (
-                        <span className="ml-1">✓✓</span>
+                        <span className="ml-2 text-primary">✓✓</span>
                       )}
                     </div>
                   </div>
                   
                   {/* Avatar para agentes (lado direito) */}
                   {!senderInfo.isCustomer && (
-                    <Avatar className="h-8 w-8 flex-shrink-0 ml-2">
+                    <Avatar className="h-10 w-10 flex-shrink-0 ml-3 hover-scale">
                       <AvatarImage src={senderInfo.avatar} />
-                      <AvatarFallback className="text-xs bg-green-600 text-white">
+                      <AvatarFallback className="text-sm bg-gradient-to-br from-primary/90 to-primary text-primary-foreground">
                         {senderInfo.name.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>

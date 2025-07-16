@@ -262,17 +262,17 @@ export default function ChatArea() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
-        <SidebarInset>
+        <SidebarInset className="flex-1">
           <div className="flex h-screen">
             {/* Enhanced Chat Sidebar */}
-            <div className="w-80 border-r border-border bg-card flex flex-col">
+            <div className="w-80 border-r border-border bg-card/50 backdrop-blur-sm flex flex-col animate-fade-in">
               {/* Sidebar Header with Controls */}
-              <div className="p-4 border-b border-border">
+              <div className="p-4 border-b border-border bg-gradient-to-r from-primary/5 to-primary/10">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5" />
+                    <MessageSquare className="h-5 w-5 text-primary" />
                     Conversas
                   </h2>
                   <div className="flex items-center gap-2">
@@ -281,6 +281,7 @@ export default function ChatArea() {
                       size="sm"
                       onClick={() => refetchConversations()}
                       disabled={conversationsLoading}
+                      className="hover-scale"
                     >
                       <RefreshCw className={`h-4 w-4 ${conversationsLoading ? 'animate-spin' : ''}`} />
                     </Button>
@@ -318,7 +319,7 @@ export default function ChatArea() {
             </div>
 
             {/* Main Chat Area */}
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col bg-background">
               {selectedConversation ? (
                 <>
                   <ChatHeader
@@ -330,7 +331,7 @@ export default function ChatArea() {
                     users={users}
                   />
                   
-                  <div className="flex-1 overflow-hidden flex flex-col">
+                  <div className="flex-1 overflow-hidden flex flex-col bg-gradient-to-b from-muted/10 to-muted/5">
                     <ChatMessages
                       conversation={selectedConversation}
                       currentUser={currentUser}
@@ -345,17 +346,29 @@ export default function ChatArea() {
                   />
                 </>
               ) : (
-                <div className="flex-1 flex items-center justify-center bg-gray-50">
-                  <div className="text-center">
-                    <div className="bg-blue-50 rounded-full p-6 w-24 h-24 mx-auto mb-4 flex items-center justify-center">
-                      <MessageSquare className="h-12 w-12 text-blue-600" />
+                <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-muted/20 via-background to-primary/5">
+                  <div className="text-center animate-fade-in">
+                    <div className="bg-primary/10 rounded-full p-8 w-32 h-32 mx-auto mb-6 flex items-center justify-center animate-scale-in">
+                      <MessageSquare className="h-16 w-16 text-primary" />
                     </div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    <h3 className="text-2xl font-semibold text-foreground mb-3">
                       Selecione uma conversa
                     </h3>
-                    <p className="text-gray-500">
-                      Escolha uma conversa na barra lateral para começar a atender.
+                    <p className="text-muted-foreground text-lg max-w-md mx-auto">
+                      Escolha uma conversa na barra lateral para começar a atender seus clientes.
                     </p>
+                    <div className="mt-8 flex flex-col items-center gap-3">
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                          <span>{stats.total} conversas ativas</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+                          <span>{stats.unread} não lidas</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

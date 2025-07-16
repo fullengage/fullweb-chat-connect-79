@@ -42,9 +42,9 @@ export const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
   }
 
   return (
-    <div className="border-t bg-white p-4">
-      <div className="flex items-end space-x-2">
-        <Button variant="ghost" size="sm" className="mb-2">
+    <div className="border-t bg-card/80 backdrop-blur-sm p-4 animate-fade-in">
+      <div className="flex items-end space-x-3">
+        <Button variant="ghost" size="sm" className="mb-2 hover-scale text-muted-foreground hover:text-foreground">
           <Paperclip className="h-4 w-4" />
         </Button>
         
@@ -59,7 +59,7 @@ export const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
             }}
             onKeyDown={handleKeyDown}
             rows={1}
-            className="resize-none min-h-[40px] max-h-[120px]"
+            className="resize-none min-h-[44px] max-h-[120px] border-border/50 focus:border-primary/50 transition-colors"
             disabled={isLoading}
           />
         </div>
@@ -67,15 +67,20 @@ export const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
         <Button 
           onClick={handleSend} 
           disabled={!message.trim() || isLoading}
-          className="mb-2"
+          className="mb-2 hover-scale bg-primary hover:bg-primary/90"
+          size="sm"
         >
           <Send className="h-4 w-4" />
         </Button>
       </div>
       
-      <div className="flex justify-between items-center mt-2 text-xs text-gray-500">
+      <div className="flex justify-between items-center mt-3 text-xs text-muted-foreground">
         <span>Enter para enviar • Shift+Enter para nova linha</span>
-        {isLoading && <span className="text-blue-600">Enviando...</span>}
+        {isLoading && (
+          <span className="text-primary font-medium animate-pulse">
+            Enviando...
+          </span>
+        )}
       </div>
     </div>
   )

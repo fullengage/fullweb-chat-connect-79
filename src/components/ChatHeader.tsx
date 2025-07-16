@@ -60,32 +60,38 @@ export const ChatHeader = ({
   }
 
   return (
-    <div className="border-b bg-white p-4">
+    <div className="border-b bg-card/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <Avatar className="h-12 w-12">
+        <div className="flex items-center space-x-4">
+          <Avatar className="h-12 w-12 hover-scale">
             <AvatarImage src={conversation.contact?.avatar_url} />
-            <AvatarFallback>
+            <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
               {conversation.contact?.name?.charAt(0).toUpperCase() || 'U'}
             </AvatarFallback>
           </Avatar>
           
-          <div>
-            <div className="flex items-center space-x-2">
-              <h2 className="text-lg font-semibold">
+          <div className="flex-1">
+            <div className="flex items-center space-x-3 mb-1">
+              <h2 className="text-lg font-semibold text-foreground">
                 {conversation.contact?.name || 'Contato Desconhecido'}
               </h2>
-              <Badge className={`text-xs ${getStatusColor(conversation.status)}`}>
+              <Badge className={`text-xs animate-scale-in ${getStatusColor(conversation.status)}`}>
                 {getStatusText(conversation.status)}
               </Badge>
             </div>
             
-            <div className="flex items-center space-x-4 text-sm text-gray-500">
+            <div className="flex items-center space-x-4 text-sm text-muted-foreground">
               {conversation.contact?.email && (
-                <span>{conversation.contact.email}</span>
+                <span className="flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                  {conversation.contact.email}
+                </span>
               )}
               {conversation.contact?.phone && (
-                <span>{conversation.contact.phone}</span>
+                <span className="flex items-center gap-1">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                  {conversation.contact.phone}
+                </span>
               )}
             </div>
           </div>
@@ -94,14 +100,17 @@ export const ChatHeader = ({
         <div className="flex items-center space-x-2">
           {/* Assign Agent */}
           <Select onValueChange={(agentId) => onAssignAgent(conversation.id, agentId)}>
-            <SelectTrigger className="w-40 h-8">
-              <UserPlus className="h-4 w-4 mr-2" />
+            <SelectTrigger className="w-40 h-9 hover-scale">
+              <UserPlus className="h-4 w-4 mr-2 text-primary" />
               <SelectValue placeholder="Atribuir" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="z-50">
               {users.map((user) => (
                 <SelectItem key={user.id} value={user.id}>
-                  {user.name}
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    {user.name}
+                  </div>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -113,6 +122,7 @@ export const ChatHeader = ({
             variant="outline"
             size="sm"
             disabled={!conversation.unread_count}
+            className="hover-scale"
           >
             <Eye className="h-4 w-4 mr-2" />
             Marcar lida
@@ -121,12 +131,12 @@ export const ChatHeader = ({
           {/* Add Label */}
           <div className="flex items-center gap-2">
             {showLabelInput ? (
-              <div className="flex gap-1">
+              <div className="flex gap-1 animate-scale-in">
                 <Input
                   placeholder="Nova etiqueta"
                   value={newLabel}
                   onChange={(e) => setNewLabel(e.target.value)}
-                  className="w-32 h-8"
+                  className="w-32 h-9"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter' && newLabel.trim()) {
                       onAddLabel(conversation.id, newLabel.trim())
@@ -139,6 +149,7 @@ export const ChatHeader = ({
                   size="sm"
                   variant="outline"
                   onClick={() => setShowLabelInput(false)}
+                  className="hover-scale"
                 >
                   ✕
                 </Button>
@@ -148,6 +159,7 @@ export const ChatHeader = ({
                 onClick={() => setShowLabelInput(true)}
                 variant="outline"
                 size="sm"
+                className="hover-scale"
               >
                 <Tag className="h-4 w-4 mr-2" />
                 Etiqueta
@@ -157,13 +169,18 @@ export const ChatHeader = ({
 
           {/* Resolve */}
           {conversation.status !== 'resolved' && (
-            <Button onClick={onResolve} variant="outline" size="sm">
+            <Button 
+              onClick={onResolve} 
+              variant="outline" 
+              size="sm"
+              className="hover-scale bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+            >
               <CheckCircle className="h-4 w-4 mr-2" />
               Resolver
             </Button>
           )}
           
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" className="hover-scale">
             <MoreVertical className="h-4 w-4" />
           </Button>
         </div>
