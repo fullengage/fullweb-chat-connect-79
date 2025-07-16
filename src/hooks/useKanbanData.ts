@@ -215,6 +215,7 @@ export const useKanbanConversations = (board_id: number) => {
       // Transform data to include inbox information and labels
       const conversationsWithExtras = data?.map(conversation => ({
         ...conversation,
+        contact_id: conversation.contact?.id || 0, // Add missing contact_id property
         inbox: {
           id: 1,
           name: 'Chat Interno',

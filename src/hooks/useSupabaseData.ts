@@ -163,6 +163,7 @@ export const useConversations = (filters: ConversationFilters) => {
       // Transform data to include inbox information and calculate unread count
       const conversationsWithInbox = data?.map(conversation => ({
         ...conversation,
+        contact_id: conversation.contact?.id || 0, // Add missing contact_id property
         inbox: {
           id: 1,
           name: 'Chat Interno',
