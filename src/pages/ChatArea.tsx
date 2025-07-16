@@ -265,103 +265,113 @@ export default function ChatArea() {
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <SidebarInset className="flex-1">
-          <div className="flex h-screen">
+          <div className="flex h-screen overflow-hidden">
             {/* Enhanced Chat Sidebar */}
-            <div className="w-80 border-r border-border bg-card/50 backdrop-blur-sm flex flex-col animate-fade-in">
+            <div className="w-72 lg:w-80 border-r border-border bg-card/50 backdrop-blur-sm flex flex-col animate-fade-in">
               {/* Sidebar Header with Controls */}
-              <div className="p-4 border-b border-border bg-gradient-to-r from-primary/5 to-primary/10">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                    <MessageSquare className="h-5 w-5 text-primary" />
+              <div className="p-3 border-b border-border bg-gradient-to-r from-primary/5 to-primary/10 flex-shrink-0">
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4 text-primary" />
                     Conversas
                   </h2>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => refetchConversations()}
                       disabled={conversationsLoading}
-                      className="hover-scale"
+                      className="h-8 w-8 p-0"
                     >
-                      <RefreshCw className={`h-4 w-4 ${conversationsLoading ? 'animate-spin' : ''}`} />
+                      <RefreshCw className={`h-3 w-3 ${conversationsLoading ? 'animate-spin' : ''}`} />
                     </Button>
                   </div>
                 </div>
 
-                <ConversationFilters
-                  searchTerm={searchTerm}
-                  setSearchTerm={setSearchTerm}
-                  statusFilter={statusFilter}
-                  setStatusFilter={setStatusFilter}
-                  assigneeFilter={assigneeFilter}
-                  setAssigneeFilter={setAssigneeFilter}
-                  users={users}
-                />
+                <div className="space-y-3">
+                  <ConversationFilters
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    statusFilter={statusFilter}
+                    setStatusFilter={setStatusFilter}
+                    assigneeFilter={assigneeFilter}
+                    setAssigneeFilter={setAssigneeFilter}
+                    users={users}
+                  />
 
-                <ConversationStats stats={stats} />
+                  <ConversationStats stats={stats} />
 
-                <AutoRefreshControls
-                  autoRefresh={autoRefresh}
-                  setAutoRefresh={setAutoRefresh}
-                  refreshInterval={refreshInterval}
-                  setRefreshInterval={setRefreshInterval}
-                />
+                  <AutoRefreshControls
+                    autoRefresh={autoRefresh}
+                    setAutoRefresh={setAutoRefresh}
+                    refreshInterval={refreshInterval}
+                    setRefreshInterval={setRefreshInterval}
+                  />
+                </div>
               </div>
 
-              <ConversationListTabs
-                statusFilter={statusFilter}
-                setStatusFilter={setStatusFilter}
-                conversationsByStatus={conversationsByStatus}
-                selectedConversation={selectedConversation}
-                setSelectedConversation={setSelectedConversation}
-                conversationsLoading={conversationsLoading}
-              />
+              <div className="flex-1 overflow-hidden">
+                <ConversationListTabs
+                  statusFilter={statusFilter}
+                  setStatusFilter={setStatusFilter}
+                  conversationsByStatus={conversationsByStatus}
+                  selectedConversation={selectedConversation}
+                  setSelectedConversation={setSelectedConversation}
+                  conversationsLoading={conversationsLoading}
+                />
+              </div>
             </div>
 
             {/* Main Chat Area */}
-            <div className="flex-1 flex flex-col bg-background">
+            <div className="flex-1 flex flex-col bg-background min-w-0">
               {selectedConversation ? (
                 <>
-                  <ChatHeader
-                    conversation={selectedConversation}
-                    onResolve={handleResolveConversation}
-                    onAssignAgent={handleAssignAgent}
-                    onMarkAsRead={handleMarkAsRead}
-                    onAddLabel={handleAddLabel}
-                    users={users}
-                  />
-                  
-                  <div className="flex-1 overflow-hidden flex flex-col bg-gradient-to-b from-muted/10 to-muted/5">
-                    <ChatMessages
+                  <div className="flex-shrink-0">
+                    <ChatHeader
                       conversation={selectedConversation}
-                      currentUser={currentUser}
+                      onResolve={handleResolveConversation}
+                      onAssignAgent={handleAssignAgent}
+                      onMarkAsRead={handleMarkAsRead}
+                      onAddLabel={handleAddLabel}
                       users={users}
                     />
-                    <div ref={messagesEndRef} />
+                  </div>
+                  
+                  <div className="flex-1 overflow-hidden flex flex-col bg-gradient-to-b from-muted/10 to-muted/5 min-h-0">
+                    <div className="flex-1 overflow-y-auto">
+                      <ChatMessages
+                        conversation={selectedConversation}
+                        currentUser={currentUser}
+                        users={users}
+                      />
+                      <div ref={messagesEndRef} />
+                    </div>
                   </div>
 
-                  <ChatInput
-                    onSendMessage={handleSendMessage}
-                    isLoading={sendMessageMutation.isPending}
-                  />
+                  <div className="flex-shrink-0">
+                    <ChatInput
+                      onSendMessage={handleSendMessage}
+                      isLoading={sendMessageMutation.isPending}
+                    />
+                  </div>
                 </>
               ) : (
-                <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-muted/20 via-background to-primary/5">
-                  <div className="text-center animate-fade-in">
-                    <div className="bg-primary/10 rounded-full p-8 w-32 h-32 mx-auto mb-6 flex items-center justify-center animate-scale-in">
-                      <MessageSquare className="h-16 w-16 text-primary" />
+                <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-muted/20 via-background to-primary/5 p-4">
+                  <div className="text-center animate-fade-in max-w-md">
+                    <div className="bg-primary/10 rounded-full p-6 w-24 h-24 mx-auto mb-4 flex items-center justify-center animate-scale-in">
+                      <MessageSquare className="h-12 w-12 text-primary" />
                     </div>
-                    <h3 className="text-2xl font-semibold text-foreground mb-3">
+                    <h3 className="text-xl font-semibold text-foreground mb-2">
                       Selecione uma conversa
                     </h3>
-                    <p className="text-muted-foreground text-lg max-w-md mx-auto">
+                    <p className="text-muted-foreground text-sm">
                       Escolha uma conversa na barra lateral para começar a atender seus clientes.
                     </p>
-                    <div className="mt-8 flex flex-col items-center gap-3">
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="mt-6 flex flex-col items-center gap-2">
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                          <span>{stats.total} conversas ativas</span>
+                          <span>{stats.total} conversas</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>

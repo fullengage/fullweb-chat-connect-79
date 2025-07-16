@@ -42,16 +42,16 @@ export const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
   }
 
   return (
-    <div className="border-t bg-card/80 backdrop-blur-sm p-4 animate-fade-in">
-      <div className="flex items-end space-x-3">
-        <Button variant="ghost" size="sm" className="mb-2 hover-scale text-muted-foreground hover:text-foreground">
-          <Paperclip className="h-4 w-4" />
+    <div className="border-t bg-card/80 backdrop-blur-sm p-3 animate-fade-in">
+      <div className="flex items-end space-x-2">
+        <Button variant="ghost" size="sm" className="mb-1 hover-scale text-muted-foreground hover:text-foreground h-8 w-8 p-0">
+          <Paperclip className="h-3 w-3" />
         </Button>
         
         <div className="flex-1">
           <Textarea
             ref={textareaRef}
-            placeholder="Digite sua mensagem... (Enter para enviar, Shift+Enter para nova linha)"
+            placeholder="Digite sua mensagem... (Enter para enviar)"
             value={message}
             onChange={(e) => {
               setMessage(e.target.value)
@@ -59,7 +59,7 @@ export const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
             }}
             onKeyDown={handleKeyDown}
             rows={1}
-            className="resize-none min-h-[44px] max-h-[120px] border-border/50 focus:border-primary/50 transition-colors"
+            className="resize-none min-h-[36px] max-h-[100px] border-border/50 focus:border-primary/50 transition-colors text-sm"
             disabled={isLoading}
           />
         </div>
@@ -67,14 +67,14 @@ export const ChatInput = ({ onSendMessage, isLoading }: ChatInputProps) => {
         <Button 
           onClick={handleSend} 
           disabled={!message.trim() || isLoading}
-          className="mb-2 hover-scale bg-primary hover:bg-primary/90"
+          className="mb-1 hover-scale bg-primary hover:bg-primary/90 h-8 w-8 p-0"
           size="sm"
         >
-          <Send className="h-4 w-4" />
+          <Send className="h-3 w-3" />
         </Button>
       </div>
       
-      <div className="flex justify-between items-center mt-3 text-xs text-muted-foreground">
+      <div className="flex justify-between items-center mt-2 text-xs text-muted-foreground">
         <span>Enter para enviar • Shift+Enter para nova linha</span>
         {isLoading && (
           <span className="text-primary font-medium animate-pulse">
