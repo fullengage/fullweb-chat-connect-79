@@ -6,11 +6,10 @@ import { ConversationStats } from "@/components/ConversationStats"
 import { ConversationManagement } from "@/components/ConversationManagement"
 import { InboxManagement } from "@/components/InboxManagement"
 import { 
-  useChatwootConversationCounts, 
-  useChatwootConversationsProxy, 
-  useChatwootAgentsProxy, 
-  useChatwootInboxesProxy 
-} from "@/hooks/useChatwootProxy"
+  useChatwootConversations,
+  useChatwootAgents,
+  useChatwootInboxes
+} from "@/hooks/useChatwootData"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { RefreshCw, Inbox, MessageSquare, BarChart3 } from "lucide-react"
@@ -44,32 +43,25 @@ export default function Dashboard() {
     ...(inboxId !== "all" && { inbox_id: parseInt(inboxId) }),
   }
 
-  // Use Chatwoot proxy hooks
-  const {
-    data: conversationCounts,
-    isLoading: countsLoading,
-    refetch: refetchCounts
-  } = useChatwootConversationCounts(accountIdNumber, status)
-
+  // Use Chatwoot hooks - same as ChatArea  
   const {
     data: conversations = [],
     isLoading: conversationsLoading,
     refetch: refetchConversations
-  } = useChatwootConversationsProxy(filters)
+  } = useChatwootConversations(filters)
 
   const {
     data: agents = [],
     isLoading: agentsLoading
-  } = useChatwootAgentsProxy(accountIdNumber)
+  } = useChatwootAgents(accountIdNumber)
 
   const {
     data: inboxes = [],
     isLoading: inboxesLoading
-  } = useChatwootInboxesProxy(accountIdNumber)
+  } = useChatwootInboxes(accountIdNumber)
 
   const handleRefresh = () => {
     refetchConversations()
-    refetchCounts()
     toast({
       title: "Atualizando dados",
       description: "Buscando as informações mais recentes...",
@@ -83,7 +75,6 @@ export default function Dashboard() {
       
       // Refresh data after change
       refetchConversations()
-      refetchCounts()
       
       toast({
         title: "Status atualizado",
@@ -159,11 +150,11 @@ export default function Dashboard() {
                 </div>
                 <Button 
                   onClick={handleRefresh} 
-                  disabled={conversationsLoading || countsLoading}
+                  disabled={conversationsLoading}
                   variant="secondary"
                   className="bg-white/10 hover:bg-white/20 text-white border-white/20"
                 >
-                  <RefreshCw className={`h-4 w-4 mr-2 ${(conversationsLoading || countsLoading) ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`h-4 w-4 mr-2 ${conversationsLoading ? 'animate-spin' : ''}`} />
                   Atualizar
                 </Button>
               </div>
@@ -221,9 +212,9 @@ export default function Dashboard() {
                 <TabsContent value="overview" className="space-y-6 mt-6">
                   <ConversationStats
                     stats={{
-                      total: conversationCounts?.all || conversationsForStats.length,
+                      total: conversationsForStats.length,
                       unread: conversationsForStats.filter(c => c.unread_count > 0).length,
-                      assigned: conversationCounts?.open || conversationsForStats.filter(c => c.assignee).length,
+                      assigned: conversationsForStats.filter(c => c.assignee).length,
                       unassigned: conversationsForStats.filter(c => !c.assignee).length
                     }}
                   />
