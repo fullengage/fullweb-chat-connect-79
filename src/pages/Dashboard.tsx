@@ -162,20 +162,6 @@ export default function Dashboard() {
             
             <div className="px-6 space-y-6">
 
-            <ChatwootFilters
-              status={status}
-              assigneeId={assigneeId}
-              inboxId={inboxId}
-              accountId={accountId}
-              onStatusChange={setStatus}
-              onAssigneeChange={setAssigneeId}
-              onInboxChange={setInboxId}
-              onAccountIdChange={setAccountId}
-              agents={agentsForFilter}
-              inboxes={inboxes}
-              isLoading={agentsLoading || inboxesLoading}
-            />
-
             {accountIdNumber > 0 && (
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm border border-border/50">

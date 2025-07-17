@@ -601,6 +601,36 @@ export type Database = {
           },
         ]
       }
+      labels: {
+        Row: {
+          account_id: number
+          color: string | null
+          created_at: string | null
+          description: string | null
+          id: number
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          account_id: number
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: number
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           attachments: Json | null
