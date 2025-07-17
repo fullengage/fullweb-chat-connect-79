@@ -164,7 +164,7 @@ export default function Dashboard() {
 
             {accountIdNumber > 0 && (
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm border border-border/50">
+                <TabsList className="grid w-full grid-cols-3 bg-card/50 backdrop-blur-sm border border-border/50">
                   <TabsTrigger 
                     value="overview" 
                     className="flex items-center space-x-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
@@ -185,13 +185,6 @@ export default function Dashboard() {
                   >
                     <MessageSquare className="h-4 w-4" />
                     <span>Conversas</span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="inboxes" 
-                    className="flex items-center space-x-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                  >
-                    <Inbox className="h-4 w-4" />
-                    <span>Caixas de Entrada</span>
                   </TabsTrigger>
                 </TabsList>
 
@@ -229,10 +222,6 @@ export default function Dashboard() {
                     accountId={accountIdNumber}
                     selectedInboxId={inboxId !== "all" ? parseInt(inboxId) : undefined}
                   />
-                </TabsContent>
-
-                <TabsContent value="inboxes" className="space-y-6 mt-6">
-                  <InboxManagement accountId={accountIdNumber} />
                 </TabsContent>
               </Tabs>
             )}
