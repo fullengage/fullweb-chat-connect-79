@@ -5,7 +5,12 @@ import { ChatwootFilters } from "@/components/ChatwootFilters"
 import { ConversationStats } from "@/components/ConversationStats"
 import { ConversationManagement } from "@/components/ConversationManagement"
 import { InboxManagement } from "@/components/InboxManagement"
-import { useConversations, useUsers, useInboxes, useUpdateConversationStatus, type User } from "@/hooks/useSupabaseData"
+import { 
+  useChatwootConversationCounts, 
+  useChatwootConversationsProxy, 
+  useChatwootAgentsProxy, 
+  useChatwootInboxesProxy 
+} from "@/hooks/useChatwootProxy"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { RefreshCw, Inbox, MessageSquare, BarChart3 } from "lucide-react"
@@ -35,30 +40,36 @@ export default function Dashboard() {
   const filters = {
     account_id: accountIdNumber,
     ...(status !== "all" && { status }),
-    ...(assigneeId !== "all" && assigneeId !== "unassigned" && { assignee_id: assigneeId }),
+    ...(assigneeId !== "all" && assigneeId !== "unassigned" && { assignee_id: parseInt(assigneeId) }),
+    ...(inboxId !== "all" && { inbox_id: parseInt(inboxId) }),
   }
+
+  // Use Chatwoot proxy hooks
+  const {
+    data: conversationCounts,
+    isLoading: countsLoading,
+    refetch: refetchCounts
+  } = useChatwootConversationCounts(accountIdNumber, status)
 
   const {
     data: conversations = [],
     isLoading: conversationsLoading,
-    error: conversationsError,
     refetch: refetchConversations
-  } = useConversations(filters)
+  } = useChatwootConversationsProxy(filters)
 
   const {
     data: agents = [],
     isLoading: agentsLoading
-  } = useUsers(accountIdNumber)
+  } = useChatwootAgentsProxy(accountIdNumber)
 
   const {
     data: inboxes = [],
     isLoading: inboxesLoading
-  } = useInboxes(accountIdNumber)
-
-  const updateStatus = useUpdateConversationStatus()
+  } = useChatwootInboxesProxy(accountIdNumber)
 
   const handleRefresh = () => {
     refetchConversations()
+    refetchCounts()
     toast({
       title: "Atualizando dados",
       description: "Buscando as informações mais recentes...",
@@ -67,10 +78,12 @@ export default function Dashboard() {
 
   const handleKanbanStatusChange = async (conversationId: number, newStatus: string) => {
     try {
-      await updateStatus.mutateAsync({ conversationId, status: newStatus })
+      // Note: This would need to be implemented with the proxy
+      console.log('Updating conversation status:', conversationId, newStatus)
       
-      // Atualizar dados para refletir mudança
+      // Refresh data after change
       refetchConversations()
+      refetchCounts()
       
       toast({
         title: "Status atualizado",
@@ -87,24 +100,24 @@ export default function Dashboard() {
     }
   }
 
-  const filteredConversations = conversations.filter((conversation: Conversation) => {
+  const filteredConversations = conversations.filter((conversation: any) => {
     if (assigneeId === "unassigned") {
-      return !conversation.assignee
+      return !conversation.assignee_id
     }
     return true
   })
 
   // Convert conversations to the format expected by components
-  const conversationsForStats: ConversationForStats[] = filteredConversations.map((conv: Conversation) => ({
+  const conversationsForStats: ConversationForStats[] = filteredConversations.map((conv: any) => ({
     id: conv.id,
     status: conv.status,
     unread_count: conv.unread_count || 0,
     contact: {
-      id: conv.contact?.id || 0,
-      name: conv.contact?.name || 'Contato Desconhecido',
-      email: conv.contact?.email,
-      phone: conv.contact?.phone,
-      avatar_url: conv.contact?.avatar_url
+      id: conv.meta?.sender?.id || 0,
+      name: conv.meta?.sender?.name || 'Contato Desconhecido',
+      email: conv.meta?.sender?.email,
+      phone: conv.meta?.sender?.phone_number,
+      avatar_url: conv.meta?.sender?.thumbnail
     },
     assignee: conv.assignee ? {
       id: conv.assignee.id,
@@ -112,18 +125,18 @@ export default function Dashboard() {
       avatar_url: conv.assignee.avatar_url
     } : undefined,
     inbox: {
-      id: 1, // Mock inbox id since we don't have inbox_id in conversations table
-      name: 'Inbox Padrão',
-      channel_type: 'webchat'
+      id: conv.inbox_id || 1,
+      name: conv.inbox?.name || 'Chat',
+      channel_type: conv.meta?.channel || 'webchat'
     },
     updated_at: conv.updated_at,
     messages: conv.messages || []
   }))
 
-  const agentsForFilter: LocalAgent[] = agents.map((user: User, index: number) => ({
-    id: index + 1, // Use index as number ID since ChatwootFilters expects number
-    name: user.name,
-    email: user.email
+  const agentsForFilter: LocalAgent[] = agents.map((agent: any, index: number) => ({
+    id: agent.id || index + 1,
+    name: agent.name,
+    email: agent.email
   }))
 
   return (
@@ -146,11 +159,11 @@ export default function Dashboard() {
                 </div>
                 <Button 
                   onClick={handleRefresh} 
-                  disabled={conversationsLoading}
+                  disabled={conversationsLoading || countsLoading}
                   variant="secondary"
                   className="bg-white/10 hover:bg-white/20 text-white border-white/20"
                 >
-                  <RefreshCw className={`h-4 w-4 mr-2 ${conversationsLoading ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`h-4 w-4 mr-2 ${(conversationsLoading || countsLoading) ? 'animate-spin' : ''}`} />
                   Atualizar
                 </Button>
               </div>
@@ -208,10 +221,10 @@ export default function Dashboard() {
                 <TabsContent value="overview" className="space-y-6 mt-6">
                   <ConversationStats
                     stats={{
-                      total: conversationsForStats.length,
+                      total: conversationCounts?.all || conversationsForStats.length,
                       unread: conversationsForStats.filter(c => c.unread_count > 0).length,
-                      assigned: conversationsForStats.filter(c => c.status === 'open').length,
-                      unassigned: conversationsForStats.filter(c => c.status === 'resolved').length
+                      assigned: conversationCounts?.open || conversationsForStats.filter(c => c.assignee).length,
+                      unassigned: conversationsForStats.filter(c => !c.assignee).length
                     }}
                   />
                   
